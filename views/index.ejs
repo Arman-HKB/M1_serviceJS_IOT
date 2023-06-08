@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+    <style>
+        #pool-data-table, #all-data-table {
+        width: 100%;
+        border-collapse: collapse;
+        }
+        
+        table th,
+        table td {
+        padding: 8px;
+        border-bottom: 1px solid #ddd;
+        }
+        
+        table th {
+        background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h3 style="text-align: center;">All pools</h3>
+    <table id="pool-data-table">
+    <thead>
+        <tr>
+            <th>Pool ID</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Data rows will be dynamically inserted here -->
+    </tbody>
+    </table>
+
+    <h3 style="text-align: center;">All entries</h3>
+    <table id="all-data-table">
+    <thead>
+        <tr>
+        <th>Pool</th>
+        <th>Client</th>
+        <th>Date</th>
+        <th>Request</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Data rows will be dynamically inserted here -->
+    </tbody>
+    </table>
+
+    <script>
+        // Retrieve data from the server
+        fetch('/get')
+        .then(response => response.json())
+        .then(data => {
+        const tableBody = document.querySelector('#all-data-table tbody');
+
+        // Iterate over the data and generate table rows
+        data.forEach(item => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+            <td>${item.pool}</td>
+            <td>${item.client}</td>
+            <td>${item.date}</td>
+            <td>${item.request}</td>
+            `;
+            tableBody.appendChild(row);
+        });
+        })
+        .catch(error => console.error(error));
+
+        // Retrieve data from the server
+        fetch('/get')
+        .then(response => response.json())
+        .then(data => {
+            const tableBody = document.querySelector('#pool-data-table tbody');
+            const uniquePools = new Set();
+
+            // Iterate over the data and collect unique pool values
+            data.forEach(item => {
+            uniquePools.add(item.pool);
+            });
+
+            // Iterate over the unique pool values and generate table rows
+            uniquePools.forEach(pool => {
+            const row = document.createElement('tr');
+            const cell = document.createElement('td');
+            const link = document.createElement('a');
+            link.textContent = pool;
+            link.href = `/info?pool=${encodeURIComponent(pool)}`; // Add the pool value as a parameter
+            cell.appendChild(link);
+            row.appendChild(cell);
+            tableBody.appendChild(row);
+            });
+        })
+        .catch(error => console.error(error));
+    </script>
+</body>
+</html>
