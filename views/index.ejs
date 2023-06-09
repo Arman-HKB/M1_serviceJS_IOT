@@ -1,96 +1,178 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Dashboard</title>
-    <style>
-        #pool-data-table, #all-data-table {
-        width: 100%;
-        border-collapse: collapse;
-        }
-        
-        table th,
-        table td {
-        padding: 8px;
-        border-bottom: 1px solid #ddd;
-        }
-        
-        table th {
-        background-color: #f2f2f2;
-        }
-    </style>
+    <%- include('parts/head') %> 
 </head>
 <body>
-    <h3 style="text-align: center;">All pools</h3>
-    <table id="pool-data-table">
-    <thead>
-        <tr>
-            <th>Pool ID</th>
-        </tr>
-    </thead>
-    <tbody>
-        <!-- Data rows will be dynamically inserted here -->
-    </tbody>
-    </table>
+    <%- include('parts/navbar') %> 
+    
+    <div class="container" style="margin-top:100px; margin-bottom:100px;">
+        <div class="row">
+            <div class="d-flex flex-row align-items-center">
+                <i class="bi bi-water me-2"></i>
+                <h3 class="mb-0 text-left">Pools list</h3>
+              </div>
+            <div id="left-side" class="col-lg-6 col-12 order-lg-1 order-2">
+                <table class="table" id="pool-data-table">
+                    <thead>
+                        <tr>
+                        <th>Pool</th>
+                        <th>Temperature</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Data rows will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        
+            <div id="right-side" class="col-lg-6 col-12 order-lg-2 d-flex align-items-top justify-content-center">
+                <div id="map"></div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="d-flex flex-row align-items-center">
+                <i class="bi bi-people me-2"></i>
+                <h3 class="mb-0 text-left">Users list</h3>
+              </div>
+            <div id="left-side" class="col-lg-6 col-12 order-lg-1 order-2">
+                <table class="table" id="user-data-table">
+                    <thead>
+                        <tr>
+                        <th>User</th>
+                        <th>Latitude</th>
+                        <th>Longitude</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Data rows will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        
+            <div id="right-side" class="col-lg-6 col-12 order-lg-2 d-flex align-items-top justify-content-center">
+                <div id="user_map"></div>
+            </div>
+        </div>
+        
+        <div id="status" class="mt-3 mb-4">
+            <div class="d-flex flex-row align-items-center">
+              <i class="bi bi-box-arrow-in-left me-2"></i>
+              <h3 class="mb-0 text-left">All accesses</h3>
+            </div>
+            <table id="all-data-table">
+                <thead>
+                    <tr>
+                    <th>Pool</th>
+                    <th>Client</th>
+                    <th>Date</th>
+                    <th>Request</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data rows will be dynamically inserted here -->
+                </tbody>
+            </table>
+          </div>        
+    </div>
 
-    <h3 style="text-align: center;">All entries</h3>
-    <table id="all-data-table">
-    <thead>
-        <tr>
-        <th>Pool</th>
-        <th>Client</th>
-        <th>Date</th>
-        <th>Request</th>
-        </tr>
-    </thead>
-    <tbody>
-        <!-- Data rows will be dynamically inserted here -->
-    </tbody>
-    </table>
-
+    <%- include('parts/script') %>
     <script>
+        $.fn.dataTable.ext.errMode = 'none';
+    </script>
+    <script>
+        // Initialize the map
+        let map = L.map('map').setView([43.6030664749555, 7.083116986918272], 13);
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+        map.setZoom(11);
+
+        let mapUser = L.map('user_map').setView([43.6030664749555, 7.083116986918272], 13);
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(mapUser);
+        mapUser.setZoom(11);
+
+        let marker;
+        
         // Retrieve data from the server
         fetch('/get')
         .then(response => response.json())
         .then(data => {
-        const tableBody = document.querySelector('#all-data-table tbody');
-
-        // Iterate over the data and generate table rows
-        data.forEach(item => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-            <td>${item.pool}</td>
-            <td>${item.client}</td>
-            <td>${item.date}</td>
-            <td>${item.request}</td>
-            `;
-            tableBody.appendChild(row);
-        });
+            // Initialize DataTable with the data
+            try {    
+                const dataTable = new DataTable('#all-data-table', {
+                data: data,
+                columns: [
+                    { data: 'pool' },
+                    { data: 'client' },
+                    { data: 'date' },
+                    { data: 'request' }
+                ]
+                });
+            } catch (error) {
+                throw error;
+            }
         })
         .catch(error => console.error(error));
 
-        // Retrieve data from the server
-        fetch('/get')
+        fetch('/pools')
         .then(response => response.json())
         .then(data => {
-            const tableBody = document.querySelector('#pool-data-table tbody');
-            const uniquePools = new Set();
+            // Initialize DataTable with the data
+            try {  
+                const dataTable = new DataTable('#pool-data-table', {
+                    data: data,
+                    columns: [
+                        { 
+                            data: 'ident' ,
+                            render: function (data, type, row) {
+                                if (type === 'display') {
+                                return '<a href="/info?pool=' + data + '">' + data + '</a>';
+                                }
+                                return data;
+                            }
+                        },
+                        { data: 'temperature' },
+                    ],
+                    searching: false,
+                    lengthChange: false,  
+            }   );
+            } catch (error) {
+                throw error;
+            }
 
-            // Iterate over the data and collect unique pool values
-            data.forEach(item => {
-            uniquePools.add(item.pool);
+            data.forEach(pool => {
+                marker = L.marker([pool.lat, pool.lon]).addTo(map);
+                marker.bindPopup("<b>"+pool.ident+"</b><br>water temperature: "+pool.temperature+"°C").closePopup();
             });
+        })
+        .catch(error => console.error(error));
 
-            // Iterate over the unique pool values and generate table rows
-            uniquePools.forEach(pool => {
-            const row = document.createElement('tr');
-            const cell = document.createElement('td');
-            const link = document.createElement('a');
-            link.textContent = pool;
-            link.href = `/info?pool=${encodeURIComponent(pool)}`; // Add the pool value as a parameter
-            cell.appendChild(link);
-            row.appendChild(cell);
-            tableBody.appendChild(row);
-            });
+        fetch('/users')
+        .then(response => response.json())
+        .then(data => {
+            // Initialize DataTable with the data
+            try {
+                const dataTable = new DataTable('#user-data-table', {
+                    data: data,
+                    columns: [
+                        { data: 'tid' },
+                        { data: 'lat' },
+                        { data: 'lon' },
+                    ],
+                    searching: false,
+                    lengthChange: false,  
+                });
+
+                data.forEach(user => {
+                    marker = L.marker([user.lat, user.lon]).addTo(mapUser);
+                    marker.bindPopup("<b>"+user.tid+"</b><br>position: ["+user.lon+", "+user.lon+"]").closePopup();
+                });
+            } catch (error) {
+                throw error;
+            }
         })
         .catch(error => console.error(error));
     </script>

@@ -1,0 +1,84 @@
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+    
+table th,
+table td {
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+}
+    
+table th {
+    background-color: #303E8C!important;
+    color: #fff;
+}
+
+img {
+    pointer-events: none;
+}
+
+.navbar {
+    background-color: #303E8C !important;
+}
+
+hr {
+    border: #111 solid 1px;
+}
+
+i {
+    font-size: 30px;
+    color: #303E8C;
+}
+
+a {
+    text-decoration: none;
+    color: #303E8C;
+}
+
+table {
+    color: #444 !important;
+}
+
+table td {
+    border-top-width: 1px !important;
+}
+
+.table_left {
+    /*width: 25% !important;*/
+    /*font-weight: bold !important;*/
+    background-color: #f0f0f0 !important;
+}
+
+.custom-card {
+    padding: 10px !important;
+    
+}
+
+.custom-card i {
+    font-size: 30px;
+    color: #3F61A6;
+}
+
+.btn-primary {
+    background-color: #3F61A6 !important;
+    --bs-btn-border-color: none !important;
+}
+.btn-primary:hover {
+    background-color: #303E8C !important;
+}
+
+.navbar a {
+    color: #fff !important;
+    text-decoration: none !important;
+    font-size: 24px !important; 
+}
+
+#map, #user_map {
+    width: 100%;
+}
+
+#myChart {
+    width: 100%!important;
+    height: 100%!important;
+}
