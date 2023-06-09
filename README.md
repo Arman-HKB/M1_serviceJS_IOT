@@ -10,5 +10,5 @@
  Un dashboard en EJS et MVC a été ajouté.
 
  Captures d'écran :
- 
- 
+ ![home](./public/img/dashboard.png)
+ ![info](./public/img/info.png)
